@@ -3,6 +3,14 @@ const path = require('path');
 const db = require('./config/connection');
 const routes = require('./routes');
 
+// Import the Authentication middleware.
+const {authMiddleware} = require('./utils/auth') ;
+ 
+// Import the Appolo server
+// https://www.apollographql.com/docs/apollo-server/integrations/middleware/#apollo-server-express
+const {ApolloServer} = require('apollo-server-express');
+const {typeDefs, resolvers} = require('./schemas');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -15,6 +23,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(routes);
+
+// Implement the Apollo Server and apply it to the Express server as middleware.
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: authMiddleware,
+});
+await server.start();
+server.applyMiddleware({ app })
 
 db.once('open', () => {
   app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
