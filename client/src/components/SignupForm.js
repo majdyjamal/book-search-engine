@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
-import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
+
+// import useMutation from Apollo 
+import { useMutation } from '@apollo/client';
+
+// import the ADD_USER mutation. 
+import { ADD_USER } from '../utils/mutations';
 
 const SignupForm = () => {
   // set initial form state
@@ -11,6 +15,8 @@ const SignupForm = () => {
   const [validated] = useState(false);
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
+  // set mutation react hook for the ADD_USER mutation.
+  const [addUser, { error }] = useMutation(ADD_USER);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -28,15 +34,27 @@ const SignupForm = () => {
     }
 
     try {
-      const response = await createUser(userFormData);
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
+      // addUser react hook returns 
+      // {
+      //   "data": {
+      //     "addUser": {
+      //       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoidXNlcjIiLCJlbWFpbCI6InVzZXIyQGVtYWlsLmNvbSIsIl9pZCI6IjYzMjQ3YmQ0NjE5OTVlZGU2MWY3NTY3NCJ9LCJpYXQiOjE2NjMzMzUzODAsImV4cCI6MTY2MzM0MjU4MH0.cOOXKyuWnwW4YPJzLv9VVBPaUkPMbB2QSDEyKjD99rY",
+      //       "user": {
+      //         "_id": "63247bd461995ede61f75674",
+      //         "username": "user2"
+      //       }
+      //     }
+      //   }
+      // }
+      const { data } = await addUser({
+        variables: { ...userFormData },
+      });
 
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
+      console.log('SignupForm > addUser > error:', error);
+
+      Auth.login(data.addUser.token);
+
     } catch (err) {
       console.error(err);
       setShowAlert(true);
