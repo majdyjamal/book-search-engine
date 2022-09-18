@@ -8,7 +8,6 @@ export const getMe = (token) => {
   });
 };
 
-
 export const loginUser = (userData) => {
   return fetch('/api/users/login', {
     method: 'POST',

@@ -1,14 +1,18 @@
 // see SignupForm.js for comments
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
-import { loginUser } from '../utils/API';
 import Auth from '../utils/auth';
+// import useMutation from Apollo 
+import { useMutation } from '@apollo/client';
+// import the ADD_USER mutation. 
+import { LOG_IN } from '../utils/mutations';
 
 const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  // set mutation react hook for the ADD_USER mutation.
+  const [loginUser, { error }] = useMutation(LOG_IN);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -26,22 +30,34 @@ const LoginForm = () => {
     }
 
     try {
-      const response = await loginUser(userFormData);
+      // Returns: 
+      // {
+      //   "data": {
+      //     "login": {
+      //       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoiVXNlcjYiLCJlbWFpbCI6IlVzZXI2QGVtYWlsLmNvbSIsIl9pZCI6IjYzMjU2MjA0ODlhYTIzZjc1Yzc2MzgwNCJ9LCJpYXQiOjE2NjM0OTA3NjAsImV4cCI6MTY2MzQ5Nzk2MH0.FzqmR1LvXbAWi_Zb-Wss1Ay0sxIyuRMwPEOOYUiqx6A",
+      //       "user": {
+      //         "_id": "6325620489aa23f75c763804",
+      //         "username": "User6",
+      //         "email": "User6@email.com"
+      //       }
+      //     }
+      //   }
+      // }     
+      const response = await loginUser({
+        variables: {
+          "email": userFormData.email,
+          "password": userFormData.password
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
+      console.log(response.data);
+      Auth.login(response.data.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
     setUserFormData({
-      username: '',
       email: '',
       password: '',
     });
