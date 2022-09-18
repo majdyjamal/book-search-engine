@@ -11,7 +11,6 @@ const resolvers = {
           _id: context.user._id,
         });
 
-        console.log('resolvers> me > foundUser', foundUser);
         // return the user
         return foundUser;
       }
