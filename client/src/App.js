@@ -19,7 +19,6 @@ const httpLink = new HttpLink({
 const clientAuthMiddleware = new ApolloLink((operation, forward) => {
   // get the token from local storage 
   const token = AuthService.getToken();
-  console.log('clientAuthMiddleware > token:', token);
 
   // add the authorization token to the headers.
   operation.setContext(({ headers = {} }) => ({

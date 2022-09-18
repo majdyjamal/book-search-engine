@@ -4,15 +4,17 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    me: async (parent, args, context, info) => {
-      // Get the user from the User Model
-      const foundUser = await User.findOne({
-        _id: 1, //args.userId,
-      });
+    me: async (parent, args, context) => {
+      if (context.user) {
+        // Get the user from the User Model
+        const foundUser = await User.findOne({
+          _id: context.user._id,
+        });
 
-      console.log('resolvers> me > foundUser', foundUser);
-      // return the user
-      return foundUser;
+        console.log('resolvers> me > foundUser', foundUser);
+        // return the user
+        return foundUser;
+      }
     },
   },
   Mutation: {

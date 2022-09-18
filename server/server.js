@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const db = require('./config/connection');
-const routes = require('./routes');
 
 // import the Appolo server
 // https://www.apollographql.com/docs/apollo-server/integrations/middleware/#apollo-server-express
@@ -27,8 +26,6 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 }
-
-app.use(routes);
 
 // implement the Apollo Server and apply it to the Express server as middleware.
 const startApolloServer = async () => {
