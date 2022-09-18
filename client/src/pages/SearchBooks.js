@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, Col, Form, Button, Card, CardColumns } from 'react-bootstrap';
-
 import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
+import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+// import useMutation from Apollo 
+import { useMutation } from '@apollo/client';
+// import the ADD_USER mutation. 
+import { SAVE_BOOK } from '../utils/mutations';
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -13,6 +16,8 @@ const SearchBooks = () => {
 
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
+  // set mutation react hook for the ADD_USER mutation.
+  const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
@@ -57,15 +62,37 @@ const SearchBooks = () => {
     // find the book in `searchedBooks` state by the matching id
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
 
-    // get token
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
+    if (!Auth.loggedIn()) {
       return false;
     }
 
     try {
-      const response = await saveBook(bookToSave, token);
+      // Returns something like
+      // {
+      //   "data": {
+      //     "saveBook": {
+      //       "_id": "63255f45e60f0781d54645aa",
+      //       "username": "User5",
+      //       "email": "User5@email.com",
+      //       "bookCount": 1,
+      //       "savedBooks": [
+      //         {
+      //           "bookId": "aaaaaaaa",
+      //           "authors": [],
+      //           "description": "test",
+      //           "image": null,
+      //           "link": null,
+      //           "title": "test title"
+      //         }
+      //       ]
+      //     }
+      //   }
+      // } 
+      const response = await saveBook({
+        variables: {
+          bookContent: { ...bookToSave }
+        },
+      });
 
       if (!response.ok) {
         throw new Error('something went wrong!');

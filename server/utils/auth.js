@@ -13,7 +13,8 @@ const expiration = '2h';
 
 module.exports = {
   // Authentication function/middleware that returns Apollo Server context.  
-  authMiddleware: function (req) {
+  authMiddleware: function (msg) {
+    let req = msg.req;
     // allows token to be sent via req.query or headers
     let token = req.body?.token || req.query?.token || req.headers?.authorization;
 

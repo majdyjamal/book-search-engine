@@ -4,7 +4,6 @@ const {
   getSingleUser,
   saveBook,
   deleteBook,
-  login,
 } = require('../../controllers/user-controller');
 
 // import middleware

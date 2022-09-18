@@ -39,9 +39,22 @@ const resolvers = {
 
       const token = signToken(user);
       return { token, user };
+    },
+    saveBook: async (parent, args, context, info) => {
+      console.log(context.user);
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: args.bookContent } },
+          { new: true, runValidators: true }
+        );
+
+        return updatedUser;
+      }
+
+      throw new AuthenticationError('Please login first.')
     }
   }
 };
 
 module.exports = resolvers;
-
